@@ -1,0 +1,82 @@
+1.	Функция, возвращающая строку "не имеет", если значение поля "Ученое звание " – null.
+
+create or replace function nullpos (position varchar2) return varchar2 as
+begin
+ if position is null
+ then return 'does not have any';
+ else return 'has a position' ;
+ end if;
+end;
+
+--+
+
+2. Функция, преобразующая значение ФИО в фамилию с инициалами (например, "Иванов Иван Сергеевич" в "Иванов И.С."). 
+
+create or replace function initials(allname varchar2) return varchar2 is
+surname    varchar2(20);
+name       varchar2(1);
+patronimic varchar2(1);
+gapn       number(2);
+gapp       number(2);
+begin
+ gapn := instr(allname, ' ');
+ gapp := instr(allname, ' ', gapn+1);      
+  if gapn = 0 or gapp = 0 
+   then return '0';
+  end if;
+  surname := substr(allname, 1, gapn);
+  name := substr(allname, gapn+1, 1);
+  patronimic := substr(allname, gapp+1, 1);
+  return surname||name||'.'||' '||patronimic||'.';      
+end;
+
+--+
+
+3.	Функция, возвращающая по параметрам "время" и "тип занятия" время окончания занятия, например:
+Время возвращается как строка формата ‘hh.mi’, hh – часы, mi – минуты.
+
+create or replace function class_end(beg_time decimal, class_type char) return char is
+end_time number(9,3);
+result char(6);
+begin
+if beg_time>=24
+then
+ return 'Failed' ;
+end if;
+if class_type='Lecture' 
+then
+ end_time:=beg_time+1.3;
+ elsif class_type='Seminar' 
+then
+  end_time:=beg_time+1.3;
+ elsif class_type='Practice' 
+then
+  end_time:=beg_time+1.3;
+end if;
+if end_time-trunc(end_time, 0)>=0.6 then
+ end_time:=end_time+1;
+ end_time:=end_time-0.6;
+end if;
+if end_time>24 
+then
+ end_time:=end_time-24;
+end if;
+result:=to_char(end_time);
+trim(trailing ' ' from result);
+if end_time-trunc(end_time,0)=0 
+then
+ return result||':00';
+end if;
+if end_time-trunc(end_time,1)=0 
+then
+ result:=replace(result,'.',':');
+ return result||'0';
+end if;
+if trunc(end_time,0)=0
+then
+ result:=replace(result,'.',':');
+ return '00'||result;
+end if;
+result:=replace(result,'.',':');
+return result;
+end;

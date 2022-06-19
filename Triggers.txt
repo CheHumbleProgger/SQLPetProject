@@ -1,0 +1,94 @@
+1.	Реализация ограничений внешнего ключа.
+
+create or replace trigger foreign_parent
+before update or delete on Kafedry
+for each row 
+declare i integer := 0;
+begin
+select count(*) into i from Lecturers where kafedra=:old.cipher;
+if i>0 then 
+raise_application_error(-20002935,'in child table there are some rows with this key value');
+end if;
+end;
+--+
+
+create or replace trigger foreign_child
+before insert or update on Lecturers
+for each row
+declare 
+i integer := 0;
+begin
+select count(*) into i from Kafedry where cipher= :new.kafedra ;
+if i=0 then 
+raise_application_error(-20002936,'in parent table there are no such values');
+end if;
+end;
+--+
+
+2.	Проверка значений всех полей отношения "Расписание", для которых могут быть определены домены. (В частности, занятия не могут начинаться раньше 9.00 и заканчиваться позднее, чем в 18.00).
+
+create or replace trigger timetable_check
+before insert or update on Timetable 
+for each row 
+begin
+DBMS_output.enable;
+if (:new.time<9.00) then 
+raise_application_error(-2000101,'Wrong value for begin time. Should be more than 9.00');
+elsif (:new.time+1.3>18.00) then
+raise_application_error(-2000102,'Wrong value for end time. Should be less than 18.00');
+elsif (:new.class not in ('Lecture','Practice','Seminar')) then
+raise_application_error(-2000103,'Wrong value for class type');
+elsif (:new.day not in ('mo','tu','we','th','fr','sa')) then
+raise_application_error(-2000104,'Wrong value for week day');
+end if;
+end;
+-- плохой вариант: позаботьтесь о пользователе, выдайте ему точное описание ошибки.
+
+3.	Триггер, проверяющий соответствие "должности" и "ученой степени": для должности 'профессор' необходима степень 'доктор наук', для должности 'доцент' – 'кандидат наук'. (Проверяется правильность назначения на должность).
+
+create or replace trigger right_degree
+before insert or update on Lecturers 
+for each row
+begin
+if ((( :new.degree='Candidate') and ( :new.position='Dotsent')) or (( :new.degree='Doctor') and ( :new.position='Professor'))) then
+-- триггер не должен ничего печатать! Он должен предотвращать внесение ошибочныз данных.
+ else
+  raise_application_error(-2000105,'Degree and position for'||:new.fio||'do not match:'|| :new.degree ||'and'||:new.position);
+end if;
+end;
+
+
+4.	Триггер, копирующий в архив все данные об изменениях в таблице "Преподаватели" с указанием даты изменения и пользователя, который эти изменения внес.
+
+create table archiv
+(
+N integer,
+Cipher varchar(6) not null,
+FIO varchar(200) not null,
+Position varchar(50) not null,
+Degree varchar(50) not null,
+Kafedra integer not null,
+check(Position in ('Senior lecturer', 'Dotsent', 'Professor')),
+check(Degree in ('Candidate', 'Doctor')),
+state char(4),
+change date,
+usr varchar(100),
+primary key (N,state)
+);
+
+create sequence archiv_seq
+minvalue 1 
+start with 1
+increment by 1
+nocache;
+
+create or replace trigger achivator
+before update or delete on Lecturers				
+for each row
+declare 
+mod char := 'U';
+begin
+if DELETING then mod:='D';
+ end if;
+ insert into archive values (archiv_seq.NEXTVAL,:old.cipher,:old.fio,:old.position,:old.degree,:old.kafedra,mod,trunc(sysdate),user);
+end;

@@ -1,0 +1,40 @@
+	Запрос с лекторами, их званиями и должностями
+без индекса time 3 cost 10
+с индексом
+create unique index pd_ind on lecturers(FIO,Postition,Degree)
+time 4 cost 9
+итоговый запрос
+select /*+INDEX(lecturers pd_ind)*/FIO, Position, Degree
+from Lecturers
+where ((Position = 'Senior lecturer') and (Degree in ('Candidate', 'Doctor'))) or ((Position='Dotsent') and (Degree!='Candidate')) or ((Position = 'Professor') and (Degree! ='Doctor'))
+order by Kafedra
+
+запрос с расписанием для 402-й
+без индекса: кост-46 тайм-10
+select day, time, Title, Class, Groups, FIO, auditorium
+from Lecturers l, Timetable, Disciplines d
+where Discipline=d.Cipher and Lecturer=L.Cipher and groups like ('%402%')
+order by day, time
+
+create index g_ind on timetable( group,day,time,auditorium)
+
+с индексом: кост-41 тайм-11
+
+select /*+INDEX(timetable g_ind)*/ day, time, Title, Class, Groups, FIO, auditorium
+from Lecturers l, Timetable, Disciplines d
+where Discipline=d.Cipher and Lecturer=L.Cipher and groups like ('%402%')
+order by day, time
+
+У всякого преподавателя не более 3х занятий в день
+индекс:create index day_ind on timetable(day)
+план не изменился
+
+Представление "Качественный состав сотрудников кафедр": кафедра – количество профессоров – количество доцентов.
+использован индекс pd_ind план изменился
+
+Представление "Расписание для преподавателей кафедры «ТСС»" (соединение отношений "Дисциплины", "Преподаватели" и "Расписание занятий").
+использован индекс pd_ind план не изменился
+
+Представление "Нагрузка преподавателей": кафедра – преподаватель – количество дисциплин, которые он ведёт.
+ни один из сделанных индексов в план не вошёл
+

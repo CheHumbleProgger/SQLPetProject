@@ -1,0 +1,241 @@
+create table Kafedry 
+(Cipher integer not null,
+Title varchar(100) not null,
+primary key(Cipher));
+
+insert into Kafedry (Cipher, Title)
+values (1, 'Mathematics');
+insert into Kafedry (Cipher, Title)
+values (2, 'Theoretical physics');
+insert into Kafedry (Cipher, Title)
+values (3, 'Humanitarian disciplines');
+insert into Kafedry (Cipher, Title)
+values (4, 'Computer science');
+insert into Kafedry (Cipher, Title)
+values (5, 'Molecular biology');
+
+create table Disciplines(
+Cipher integer not null,
+Title varchar(100) not null,
+primary key (Cipher));
+
+insert into Disciplines (Cipher, Title)
+values( 11, 'Calculus');
+insert into Disciplines (Cipher, Title)
+values( 12, 'Linear algebra');
+insert into Disciplines (Cipher, Title)
+values( 13, 'Differential equations');
+insert into Disciplines (Cipher, Title)
+values( 14, 'Eq. of mat. phys.');
+insert into Disciplines (Cipher, Title)
+values( 21, 'General physics');
+insert into Disciplines (Cipher, Title)
+values( 22, 'Field theory');
+insert into Disciplines (Cipher, Title)
+values( 23, 'Physics of the condensed state');
+insert into Disciplines (Cipher, Title)
+values( 24, 'Physical chemistry');
+insert into Disciplines (Cipher, Title)
+values( 31, 'English');
+insert into Disciplines (Cipher, Title)
+values( 32, 'Law');
+insert into Disciplines (Cipher, Title)
+values( 33, 'Philosophy');
+insert into Disciplines (Cipher, Title)
+values( 41, 'Databases');
+insert into Disciplines (Cipher, Title)
+values( 42, 'Compilers theory');
+insert into Disciplines (Cipher, Title)
+values( 43, 'Object-oriented programming');
+insert into Disciplines (Cipher, Title)
+values( 51, 'Biochemistry');
+insert into Disciplines (Cipher, Title)
+values( 52, 'Biophysics');
+insert into Disciplines (Cipher, Title)
+values( 53, 'General biology');
+insert into Disciplines (Cipher, Title)
+values( 54, 'Molecular biology');
+
+create table Lecturers(
+Cipher varchar(6) not null,
+FIO varchar(200) not null,
+Position varchar(50) not null,
+Degree varchar(50) not null,
+Kafedra integer not null,
+check(Position in ('Senior lecturer', 'Dotsent', 'Professor')),
+check(Degree in ('Candidate', 'Doctor')),
+primary key (Cipher),
+foreign key (Kafedra) 
+references Kafedry );
+
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('1DIAA', 'Ivanov Alexey Alexeyevich', 'Dotsent', 'Candidate', 1);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('1PDVP', 'Demidov Valery Petrovich', 'Professor', 'Doctor', 1);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('1DSSA', 'Sergeev Sergey Andreevich', 'Dotsent', 'Candidate', 1);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('2DRRM', 'Romanov Roman Maximovich', 'Dotsent', 'Candidate', 2);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('2PBAL', 'Barabanov Alexey Lvovich', 'Professor', 'Doctor', 2);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('2PKKM', 'Kulbachinsky Kliment Mihailovich', 'Professor', 'Doctor', 2);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('2DPPS', 'Petrov Pavel Sergeevich', 'Dotsent', 'Candidate', 2);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('3PMNB', 'Mironova Natalia Borisovna', 'Professor', 'Doctor', 3);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('3DIFR', 'Ilyin Fyodor Rostislavovich', 'Dotsent', 'Candidate', 3);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('3SGEE', 'Genieva Yekaterina Yevgenievna', 'Senior lecturer', 'Candidate', 3);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('4DTVA', 'Tarasov Vasiliy Anatolyevich', 'Dotsent', 'Candidate', 4);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('4DSNA', 'Semenov Nikolay Andreevich', 'Dotsent', 'Candidate', 4);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('4PKMM', 'Karpov Maxim Maximovich', 'Professor', 'Doctor', 4);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('5DPDM', 'Prokofyev Dmitry Mihailovich', 'Dotsent', 'Candidate', 5);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('5DDLS', 'Dementyev Lev Semyonovich', 'Dotsent', 'Candidate', 5);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('5PLOD', 'Lopina Olga Dmitriyevna', 'Professor', 'Doctor', 5);
+insert into Lecturers (Cipher, FIO, Position, Degree, Kafedra)
+values ('5PSKE', 'Suhov Kirill Yefremovich', 'Professor', 'Doctor', 5);
+
+create table Timetable (
+N integer not null,
+Discipline integer not null,
+Groups char(15) not null,
+Class char(20) not null,
+Lecturer varchar(6) not null,
+Day char(4) not null,
+Time decimal(5,2),
+Auditorium integer not null,
+primary key(N),
+foreign key (Discipline) references Disciplines,
+foreign key (Lecturer) references Lecturers,
+check ( Class in ('Lecture','Seminar','Practice')),
+check ( Day in ('mo','tu','we','th','fr','sa')),
+check ( Time between 0.00 and 24.00));
+
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (1,11,'101,102,103','Lecture','1DIAA','mo',9.00,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (2,13,'201,202,203','Lecture','1DSSA','mo',9.00,111);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (3,33,'401,402,403','Lecture','3PMNB','mo',10.30,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (4,23,'401,402,403','Lecture','2PKKM','mo',12.00,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (5,21,'103','Practice','2DRRM','mo',10.30,112);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (6,21,'102','Practice','2DRRM','mo',12.00,112);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (7,13,'202','Seminar','1DSSA','mo',12.00,111);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (8,13,'201','Seminar','1DSSA','mo',10.30,111);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (9,31,'101','Seminar','3SGEE','mo',12.00,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (10,21,'103','Seminar','2DRRM','tu',9.00,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (11,13,'203','Seminar','1DSSA','tu',9.00,111);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (12,23,'401','Seminar','2PKKM','tu',9.00,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (13,54,'402','Seminar','5PSKE','tu',9.00,211);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (14,11,'102','Seminar','1DIAA','tu',10.30,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (15,23,'402','Seminar','2PKKM','tu',10.30,211);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (16,54,'401','Seminar','5PSKE','tu',10.30,111);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (17,31,'103','Seminar','3SGEE','tu',12.00,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (18,21,'101','Practice','2DRRM','tu',10.30,112);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (19,42,'203','Practice','4DTVA','tu',12.00,122);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (20,42,'203','Lecture','4DTVA','tu',10.30,122);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (21,54,'401,402','Lecture','5PSKE','tu',12.00,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (22,51,'201,202','Lecture','5PLOD','we',9.00,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (23,21,'101,102,103','Lecture', '2DRRM','we',10.30,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (24,31,'102','Seminar','3SGEE','we',9.00,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (25,51,'201','Seminar','5PLOD','we',10.30,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (26,51,'202','Seminar','5PLOD','we',12.00,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (27,21,'102','Seminar','2DRRM','we',12.00,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (28,21,'101','Seminar','2DRRM','th',9.00,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (29,14,'301,302,303','Lecture','1PDVP','th',9.00,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (30,11,'103','Seminar','1DIAA','th',10.30,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (31,51,'201,202','Practice','5PLOD','th',10.30,222);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (32,14,'301','Seminar','1PDVP','th',10.30,111);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (33,52,'302','Seminar','5DDLS','th',10.30,113);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (34,41,'303','Lecture','4PKMM','th',10.30,114);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (35,33,'101,102,103','Lecture','3PMNB','th',12.00,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (36,53,'201,202','Practice','5DPDM','th',12.00,223);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (37,41,'303','Practice','4PKMM','th',12.00,114);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (38,14,'302','Seminar','1PDVP','th',12.00,113);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (39,52,'301','Seminar','5DDLS','th',12.00,111);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (40,43,'101,102,103','Lecture','4DSNA','fr',9.00,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (41,24,'201,202','Practice','2DPPS','fr',9.00,145);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (42,22,'301,302,303','Lecture','2PBAL','fr',9.00,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (43,43,'101','Practice','4DSNA','fr',10.30,130);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (44,12,'102','Seminar','1DSSA','fr',10.30,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (45,24,'202','Seminar','2DPPS','fr',10.30,113);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (46,22,'301','Seminar','2PBAL','fr',10.30,114);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (47,22,'302','Seminar','2PBAL','fr',12.00,114);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (48,12,'103','Seminar','1DSSA','fr',12.00,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (49,43,'102','Practice','4DSNA','fr',12.00,130);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (50,53,'201,202','Lecture','5DPDM','fr',12.00,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (51,24,'201,202','Lecture','2DPPS','sa',9.00,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (52,43,'103','Practice','4DSNA','sa',9.00,130);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (53,22,'303','Seminar','2PBAL','sa',9.00,111);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (54,32,'201,202,203','Lecture','3DIFR','sa',10.30,210);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (55,12,'101,102,103','Lecture','1DSSA','sa',10.30,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (56,52,'301,302','Lecture','5DDLS','sa',10.30,114);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (57,14,'303','Seminar','1PDVP','sa',10.30,111);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (58,12,'101','Seminar','1DSSA','sa',12.00,110);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (59,24,'201','Seminar','2DPPS','sa',12.00,111);
+insert into Timetable (N, Discipline, Groups, Class, Lecturer, Day, Time, Auditorium)
+values (60,54,'401,402','Practice','5PSKE','sa',12.00,235);

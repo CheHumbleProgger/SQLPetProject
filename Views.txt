@@ -1,0 +1,36 @@
+1.	Представление "Качественный состав сотрудников кафедр": кафедра – количество профессоров – количество доцентов.
+
+create view employees as
+select k.title,
+NVL((select count(*) from lecturers l where position='Professor' and l.kafedra=k.cipher),0)profcount,
+NVL((select count(*) from lecturers l where position='Dotsent' and l.kafedra=k.cipher),0)dotcount
+from kafedry k
+
+представление  обновляемо (проверено командой update employees
+set title='Pure mathematics' 
+where title='Mathematics';)
+
+---------------------------------------------------------------------------------------------------------
+2.	Представление "Расписание для преподавателей кафедры «ТСС»" (соединение отношений "Дисциплины", "Преподаватели" и "Расписание занятий").
+
+create view kaftable as
+select FIO,day, time, d.title, groups, class, auditorium from disciplines d, timetable t, lecturers l
+where d.cipher=t.discipline and t.lecturer=l.cipher and l.kafedra=1;
+
+представление частично обновляемо (проверено командой update kaftable
+set groups='104'
+where groups='102')
+
+-------------------------------------------------------------------------------------------------------------
+3.	Представление "Нагрузка преподавателей": кафедра – преподаватель – количество дисциплин, которые он ведёт.
+
+create view work as
+select k.title, l.FIO, NVL((select count(distinct t.discipline) from timetable t where t.lecturer=l.cipher), 0)discount
+from kafedry k, lecturers l
+where k.cipher=l.kafedra;
+
+представление частично обновляемо (проверено командой update work
+set FIO='Sergeev Sergey Anatolyevich' 
+where FIO='Sergeev Sergey Andreevich';)
+
+

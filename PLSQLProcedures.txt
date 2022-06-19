@@ -1,0 +1,121 @@
+1.	Процедура, формирующая на основании таблицы "Преподаватели" первые 4 поля таблицы "Научные кадры" (Id, "ФИО", "Ученая степень", "Кафедра", "Специальность", "Дата присвоения степени", "Шифр ученого совета"). 
+Она добавляет преподавателей, получивших новые ученые звания, и изменяет ученое звание сотрудника с кандидата наук на доктора наук, если степени получены по одной и той же специальности.
+
+create table kadry(
+N integer,
+id varchar(6) not null,
+fio varchar(200) not null,
+degree varchar(50),
+kafedra integer not null,
+specialization varchar(50),
+new_degree_date date,
+vak_cipher varchar(6),
+primary key(N),
+foreign key(kafedra)
+references Kafedry
+);
+create or replace procedure pushkadry is
+cursor kad is select l.cipher id, l.fio f, l.degree deg, l.kafedra kaf from lecturers l;
+kadrow kad%rowtype;
+begin
+for kadrow in kad LOOP
+insert into kadry (id,fio,degree,kafedra) values(kadrow.id,kadrow.f,kadrow.deg,kadrow.kaf); 
+end LOOP;
+end;
+
+-- Несколько непонятно, что подразумевается под "Она добавляет преподавателей, получивших новые ученые звания, и изменяет ученое звание сотрудника с кандидата наук на доктора наук, если степени получены по одной и той же специальности."
+-- По моему мнению, это подразумевает триггер или же update и delete в этой же процедуре. Также не ясно, как определить новые научные звания или же нет. Прошу помощи с тем, как это лучше реализовать.
+
+2.	Процедура, принимающая в качестве параметра название кафедры и выдающая для всех преподавателей этой кафедры расписание в следующем виде:
+преподаватель1	дисциплина1	тип занятия	группа1    день недели    время    ауд.
+						группа2
+преподаватель1	дисциплина2	тип занятия	группа1    день недели    время    ауд.
+						группа2
+						группа3
+преподаватель2	дисциплина1	тип занятия	группа1    день недели    время    ауд.
+…
+Время вывести интервалом с использованием функции из лабораторной работы №1.
+
+create or replace procedure leckaftime(kaftitle in varchar2) is
+cursor timet(kaftitle in varchar2) is select l.fio f, d.title tit, t.class typ, t.groups gr, t.day d, t.time tim, t.auditorium aud 
+from kafedry k, disciplines d, lecturers l, timetable t 
+where l.kafedra=k.cipher and k.title=kaftitle and l.cipher=t.lecturer and d.cipher=t.discipline 
+order by l.fio, d.title;
+timerow timet%ROWTYPE;
+end_time char(8);
+begin
+DBMS_OUTPUT.enable;
+for timerow in timet(kaftitle) LOOP
+ end_time:=class_end(timerow.tim,timerow.typ);
+ dbms_output.put_line(timerow.f||' '|| timerow.tit ||' '|| timerow.typ ||' '|| timerow.gr ||' '|| timerow.d ||' '||timerow.tim||'--'||end_time||' '||timerow.aud);
+end LOOP;
+end; 
+--В последней прооцедуре всё отформатировано по столбцам
+create or replace procedure leckaftime1(kaftitle in varchar2) is
+cursor timet(kaftitle in varchar2) is select l.fio f, d.title tit, t.class typ, t.groups gr, t.day d, t.time tim, t.auditorium aud 
+from kafedry k, disciplines d, lecturers l, timetable t 
+where l.kafedra=k.cipher and k.title=kaftitle and l.cipher=t.lecturer and d.cipher=t.discipline 
+order by l.fio, d.title;
+timerow timet%ROWTYPE;
+end_time char(8);
+fio1 char(150);
+titl1 char(75);
+type1 char(20);
+group1 char(15);
+time1 char(5);
+day1 char(4);
+audit1 char(4);
+begin
+DBMS_OUTPUT.enable;
+for timerow in timet(kaftitle) LOOP
+ fio1:=timerow.f;
+ titl1:=timerow.tit;
+ type1:=timerow.typ;
+ group1:=timerow.gr;
+ time1:=timerow.tim;
+ day1:=timerow.d;
+ audit1:=timerow.aud;
+ end_time:=class_end(timerow.tim,timerow.typ);
+ dbms_output.put_line(fio1||' '||titl1||' '||type1||' '||group1||' '||day1||' '||time1||'--'||end_time||' '||audit1);
+end LOOP;
+end; 
+
+
+3.	Процедура, проверяющая корректность расписания для преподавателей. 
+Расписание считается некорректным, если у одного преподавателя более 3-х занятий в день,  
+а также если время разных занятий у одного преподавателя совпадает или пересекается. 
+
+
+create or replace procedure timecorr is
+cursor lecload is select count(*) as c, day d, lecturer l from timetable group by day, lecturer order by lecturer;
+cursor lecint is select discipline di, day d, lecturer l, auditorium a, groups g, time t, class k from timetable;
+cursor lecint1 is select discipline di, day d, lecturer l, auditorium a, groups g, time t, class k from timetable; 
+lec lecload%ROWTYPE;
+inter lecint%ROWTYPE;
+inter1 lecint1%ROWTYPE;
+sumload integer;
+too_many_lec exception;
+lec_more_3 exception;
+begin
+for lec in lecload LOOP
+  sumload:=lec.c;
+        if sumload>3 then
+            raise lec_more_3;
+        end if;
+end LOOP;
+for inter in lecint LOOP
+ for inter1 in lecint1 LOOP
+	if (inter.l=inter1.l) and (inter.d=inter1.d) and (inter1.t between inter.t and inter.t+1.29999999999) and ((inter.di<>inter1.di) or (inter.a<>inter1.a) or (inter.g<>inter1.g) or (inter.k<>inter1.k)) then
+		raise too_many_lec;
+	end if;
+--        if ((inter.l=inter1.l) and (inter.d=inter1.d)) and ((inter.di<>inter1.di) or (inter.a<>inter1.a) or (inter.g<>inter1.g) or (inter1.t between inter.t and inter.t+1.3)) then
+--		raise too_many_lec;
+--	end if;
+ end LOOP;
+end LOOP;
+exception
+ when too_many_lec then
+  raise_application_error(-20010,'Lectures intersection');
+ when lec_more_3 then
+  raise_application_error(-20011,'Too many lectures a day');
+end;
