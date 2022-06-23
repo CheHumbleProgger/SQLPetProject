@@ -1,4 +1,4 @@
-1.	Функция, возвращающая строку "не имеет", если значение поля "Ученое звание " – null.
+1.	Function that returns "doesn't have any"< if the degree field is null.
 
 create or replace function nullpos (position varchar2) return varchar2 as
 begin
@@ -10,7 +10,7 @@ end;
 
 --+
 
-2. Функция, преобразующая значение ФИО в фамилию с инициалами (например, "Иванов Иван Сергеевич" в "Иванов И.С."). 
+2. Function, changing name, surname and patronimic into surname with initials (e.g. Ivanov Ivan Ivanovich to Ivanov I.I.)
 
 create or replace function initials(allname varchar2) return varchar2 is
 surname    varchar2(20);
@@ -32,8 +32,7 @@ end;
 
 --+
 
-3.	Функция, возвращающая по параметрам "время" и "тип занятия" время окончания занятия, например:
-Время возвращается как строка формата ‘hh.mi’, hh – часы, mi – минуты.
+3. Function, which returns time of classes' end (format hh.mm) basing on its time of start and type
 
 create or replace function class_end(beg_time decimal, class_type char) return char is
 end_time number(9,3);
