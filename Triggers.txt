@@ -1,4 +1,4 @@
-1.	Реализация ограничений внешнего ключа.
+1.	Realization of the foreign key restrictions
 
 create or replace trigger foreign_parent
 before update or delete on Kafedry
@@ -25,7 +25,7 @@ end if;
 end;
 --+
 
-2.	Проверка значений всех полей отношения "Расписание", для которых могут быть определены домены. (В частности, занятия не могут начинаться раньше 9.00 и заканчиваться позднее, чем в 18.00).
+2.Check of all fields of timetable table whose domains can be defined (eg lectures can't start before 9.00 and end after 18.00).
 
 create or replace trigger timetable_check
 before insert or update on Timetable 
@@ -42,23 +42,21 @@ elsif (:new.day not in ('mo','tu','we','th','fr','sa')) then
 raise_application_error(-2000104,'Wrong value for week day');
 end if;
 end;
--- плохой вариант: позаботьтесь о пользователе, выдайте ему точное описание ошибки.
 
-3.	Триггер, проверяющий соответствие "должности" и "ученой степени": для должности 'профессор' необходима степень 'доктор наук', для должности 'доцент' – 'кандидат наук'. (Проверяется правильность назначения на должность).
+3.	Trigger which checks relations between degree and position.
 
 create or replace trigger right_degree
 before insert or update on Lecturers 
 for each row
 begin
 if ((( :new.degree='Candidate') and ( :new.position='Dotsent')) or (( :new.degree='Doctor') and ( :new.position='Professor'))) then
--- триггер не должен ничего печатать! Он должен предотвращать внесение ошибочныз данных.
  else
   raise_application_error(-2000105,'Degree and position for'||:new.fio||'do not match:'|| :new.degree ||'and'||:new.position);
 end if;
 end;
 
 
-4.	Триггер, копирующий в архив все данные об изменениях в таблице "Преподаватели" с указанием даты изменения и пользователя, который эти изменения внес.
+4.	Trigger which copies into archive all changes in table lecturers with date of change and user, who commited the changes.
 
 create table archiv
 (
