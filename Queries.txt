@@ -1,4 +1,4 @@
-кафедра – преподаватель – дисциплина упорядочить по кафедрам:
+
 
 select distinct d.title, k.title, l.FIO
 from Kafedry k, Lecturers l, Disciplines d, Timetable t
@@ -6,7 +6,7 @@ where (k.cipher=l.kafedra) and (l.cipher=t.lecturer) and (d.cipher=t.discipline)
 order by k.title
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
-Выборка преподавателей, у которых должность не соответствует учёной степени (для кандидата соответствующая должность доцент, для доктора – профессор):
+Set of lecturers whose position is not related with their degree (candidate - dotsent, doctor - professor)
 
 select FIO, Position, Degree
 from Lecturers
@@ -14,7 +14,7 @@ where ((Position = 'Senior lecturer') and (Degree in ('Candidate', 'Doctor'))) o
 order by Kafedra
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
-Расписание для 402-й группы:
+Schedule for group 402:
 
 select day, time, Title, Class, Groups, FIO, auditorium
 from Lecturers l, Timetable, Disciplines d
@@ -22,14 +22,14 @@ where Discipline=d.Cipher and Lecturer=L.Cipher and groups like ('%402%')
 order by day, time
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
-Дисциплины без лекций:
+Disciplines without lectures:
 
-версия 1:
+v1:
 select title, cipher 
 from disciplines
 where  title not in (select  title from disciplines, timetable where (cipher=discipline) and (class='Lecture'))
 
-версия 2:
+v2:
 select title 
 from disciplines
 minus
@@ -37,9 +37,8 @@ select title
 from disciplines, timetable
 where (cipher=discipline) and (class='Lecture');
 
-Полагаю, что версия 2 быстрее, так как её cost (у меня выходило 45 и 41 у версий 1 и 2 соответственно) меньше
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
-У всякого преподавателя не более 3х занятий в день
+Each lecturer has no more than 3 lectures per day
 
 select count(*), day, lecturer 
 from Lecturers, timetable 
