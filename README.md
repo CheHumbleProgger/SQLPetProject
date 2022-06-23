@@ -5,6 +5,8 @@ To work with these files the DBMS working witn oracle dialect is needed.
 
 Some information about files:
 
+ER-diagram -- the ER-diagram of the database in Martin's notation
+
 DBCreation -- creation of tables, making relations and filling the database with information
 
 Indices -- comparison of characterisitcs of queries  with and without using indices
