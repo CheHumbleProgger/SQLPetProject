@@ -1,4 +1,4 @@
-1.	Представление "Качественный состав сотрудников кафедр": кафедра – количество профессоров – количество доцентов.
+1.	View: employees: kafedra-quantity of professors-quantity of dotsents
 
 create view employees as
 select k.title,
@@ -6,30 +6,30 @@ NVL((select count(*) from lecturers l where position='Professor' and l.kafedra=k
 NVL((select count(*) from lecturers l where position='Dotsent' and l.kafedra=k.cipher),0)dotcount
 from kafedry k
 
-представление  обновляемо (проверено командой update employees
+The view is updateable (check: update employees
 set title='Pure mathematics' 
 where title='Mathematics';)
 
 ---------------------------------------------------------------------------------------------------------
-2.	Представление "Расписание для преподавателей кафедры «ТСС»" (соединение отношений "Дисциплины", "Преподаватели" и "Расписание занятий").
+2.	View "Timetable of lecturers of kafedra" (merge of relations disciplines, lecturers and timetable).
 
 create view kaftable as
 select FIO,day, time, d.title, groups, class, auditorium from disciplines d, timetable t, lecturers l
 where d.cipher=t.discipline and t.lecturer=l.cipher and l.kafedra=1;
 
-представление частично обновляемо (проверено командой update kaftable
+The view is partly updateable (check: update kaftable
 set groups='104'
 where groups='102')
 
 -------------------------------------------------------------------------------------------------------------
-3.	Представление "Нагрузка преподавателей": кафедра – преподаватель – количество дисциплин, которые он ведёт.
+3.	View "Lecturers work": kafedra-lecturer-quantity of disciplinse conducted by this lecturer.
 
 create view work as
 select k.title, l.FIO, NVL((select count(distinct t.discipline) from timetable t where t.lecturer=l.cipher), 0)discount
 from kafedry k, lecturers l
 where k.cipher=l.kafedra;
 
-представление частично обновляемо (проверено командой update work
+The view is partly updateable (check update work
 set FIO='Sergeev Sergey Anatolyevich' 
 where FIO='Sergeev Sergey Andreevich';)
 
